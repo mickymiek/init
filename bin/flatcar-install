@@ -17,7 +17,7 @@ else
     ensure_tool "${BZIP_UTIL}"
 fi
 
-toolset=( blockdev btrfstune cp cut dd gawk gpg grep head ls lsblk mkdir mkfifo mktemp mount rm sed sort tee udevadm wget wipefs ) 
+toolset=( blockdev btrfstune cp cut dd gawk gpg grep head ls lsblk mkdir mkfifo mktemp mount rm sed sort tee udevadm wget wipefs )
 
 for t in "${toolset[@]}"; do ensure_tool "${t}"; done
 
@@ -600,7 +600,7 @@ function prep_url(){
 
     echo "Downloading the signature for ${IMAGE_URL}..."
     wget ${WGET_ARGS} --no-verbose -O "${WORKDIR}/${SIG_NAME}" "${SIG_URL}"
-   
+
     VERSION_SUMMARY+=" ${CHANNEL_ID} ${VERSION_ID}${OEM_ID:+ (${OEM_ID})}"
 }
 
@@ -678,7 +678,9 @@ function create_uefi() {
     if [[ "${BOARD}" = "arm64-usr" ]]; then
         EFI_APP="bootaa64.efi"
     fi
-    efibootmgr -c -d "${DEVICE}" -l "\\efi\\boot\\${EFI_APP}" -L "Flatcar Container Linux ${CHANNEL_ID}"
+    if ! efibootmgr -c -d "${DEVICE}" -l "\\efi\\boot\\${EFI_APP}" -L "Flatcar Container Linux ${CHANNEL_ID}"; then
+	    echo "Failed to execute efibootmgr."
+    fi
 }
 
 WORKDIR=$(mktemp --tmpdir -d flatcar-install.XXXXXXXXXX)
@@ -703,4 +705,4 @@ else
 fi
 
 rm -rf "${WORKDIR}"
-trap - EXIT 
+trap - EXIT
